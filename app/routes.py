@@ -1,10 +1,10 @@
-from flask import request, jsonify
+from flask import request, jsonify, render_template
 from app import app, db
 from app.models import Account
 
 @app.route("/")
 def index():
-    return "Server is running!"
+    return render_template("index.html")
 
 @app.route("/create_account", methods=["POST"])
 def create_account():
