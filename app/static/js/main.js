@@ -95,3 +95,34 @@ if (currentHour >= 9) {
     var scrollPosition = ((currentHour - 9) * 60) - 100;
     document.getElementById('calendarContainer').scrollTop = Math.max(0, scrollPosition);
 }
+
+document.getElementById('createAccountBtn').addEventListener('click', async () => {
+    const username = prompt("新しいユーザー名を入力してください:");
+    const email = prompt("メールアドレスを入力してください:");
+
+    if (!username || !email) {
+        alert("ユーザー名とメールアドレスは必須です。");
+        return;
+    }
+
+    try {
+        const res = await fetch("/create_account", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, email })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            alert("✅ アカウントを作成しました: " + username);
+            // ここで再描画などを行う
+            members.push({ id: Date.now(), name: username, status: "in", color: "#2196f3" });
+            renderMembers(members);
+        } else {
+            alert("❌ エラー: " + (data.error || "不明なエラー"));
+        }
+    } catch (err) {
+        alert("⚠ 通信エラー: " + err.message);
+    }
+});
