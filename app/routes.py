@@ -85,32 +85,59 @@ def delete_schedule(schedule_id):
 
 @app.route("/get_all_accounts", methods=["GET"])
 def get_all_accounts():
-    accounts = Account.query.all()
-    account_list = []
-    for acc in accounts:
-        account_list.append({
-            "id": acc.id,
-            "username": acc.username,
-            "email": acc.email,
-            "status": acc.status,
-            "avatar": acc.avatar,
-            "color": acc.color or "#2196f3"  # もし空なら青
-        })
-    return jsonify(account_list)
+    try:
+        print("👥 get_all_accountsを実行中...")
+        accounts = Account.query.all()
+        print(f"✅ {len(accounts)}件のアカウントを取得")
+        
+        account_list = []
+        for acc in accounts:
+            account_list.append({
+                "id": acc.id,
+                "username": acc.username,
+                "email": acc.email,
+                "status": acc.status,
+                "avatar": acc.avatar,
+                "color": acc.color or "#2196f3"
+            })
+        
+        print(f"✅ JSON化: {account_list}")
+        return jsonify(account_list), 200
+    except Exception as e:
+        print(f"❌ get_all_accountsでエラー: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/get_all_schedules", methods=["GET"])
 def get_all_schedules():
-    schedules = Schedule.query.all()
-    schedule_list = []
-    for s in schedules:
-        schedule_list.append({
-            "id": s.id,
-            "account_id": s.account_id,
-            "start_time": s.start_time,
-            "end_time": s.end_time,
-            "description": s.description
-        })
-    return jsonify(schedule_list)
+    try:
+        print("📋 get_all_schedulesを実行中...")
+        schedules = Schedule.query.all()
+        print(f"✅ {len(schedules)}件のスケジュールを取得")
+        
+        schedule_list = []
+        for s in schedules:
+            print(f"処理中: id={s.id}, start={s.start_time}, end={s.end_time}")
+            schedule_list.append({
+                "id": s.id,
+                "account_id": s.account_id,
+                "start_time": s.start_time.isoformat() if s.start_time else None,
+                "end_time": s.end_time.isoformat() if s.end_time else None,
+                "description": s.description
+            })
+        
+        print(f"✅ JSON化: {schedule_list}")
+        return jsonify(schedule_list), 200
+    except AttributeError as e:
+        print(f"❌ AttributeError: {e}")
+        print(f"❌ schedules型: {type(schedules)}")
+        return jsonify({"error": f"AttributeError: {str(e)}"}), 500
+    except Exception as e:
+        print(f"❌ get_all_schedulesでエラー: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/test")
 def test_page():
