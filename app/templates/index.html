@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>研究室ステータス</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="header">
+        <div class="members" id="members"></div>
+        <button class="control-btn create-btn" id="createAccountBtn">＋</button>
+    </div>
+
+    <div class="calendar-container" id="calendarContainer">
+        <div class="calendar" id="calendar"></div>
+    </div>
+
+    <button class="control-btn lock-btn unlocked" id="lockBtn">
+        <svg class="icon" viewBox="0 0 24 24">
+            <path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM8.9 6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2H8.9V6z"/>
+        </svg>
+    </button>
+
+    <button class="control-btn aircon-btn off" id="airconBtn">
+        <svg class="icon" viewBox="0 0 24 24">
+            <path d="M6.59 3.41L5 5l6.29 6.29c.39.39 1.02.39 1.41 0L19 5l-1.59-1.59-5.12 5.12-5.7-5.12zM3 14l1.41 1.41 2.12-2.12C7.94 14.4 9.89 15 12 15s4.06-.6 5.47-1.71l2.12 2.12L21 14l-2.12-2.12c1.11-1.41 1.71-3.36 1.71-5.47L12 14 3.41 5.41 3 6c0 2.11.6 4.06 1.71 5.47L3 14z"/>
+        </svg>
+    </button>
+
+    <button class="control-btn light-btn on" id="lightBtn">
+        <svg class="icon" viewBox="0 0 24 24">
+            <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
+        </svg>
+    </button>
+    <script type="module" src="/static/js/main.js"></script>
+</body>
+</html>
