@@ -1,6 +1,7 @@
 from flask import request, jsonify, render_template
 from app import app, db
 from app.models import Account, Schedule
+import random
 
 @app.route("/")
 def index():
@@ -9,11 +10,23 @@ def index():
 @app.route("/create_account", methods=["POST"])
 def create_account():
     data = request.get_json()
+    color_list = [
+        "#2196f3","#4caf50","#ff9800","#9c27b0","#e91e63",
+        "#00bcd4","#8bc34a","#ffc107","#3f51b5","#795548"
+    ]
+    color = random.choice(color_list)
+
+    # すでに同じメールがあるかチェック
+    existing = Account.query.filter_by(email=data["email"]).first()
+    if existing:
+        return jsonify({"error": "このメールアドレスはすでに登録されています"}), 400
+
     new_acc = Account(
         username=data["username"],
         email=data["email"],
         status=data.get("status", "inroom"),
-        avatar=data.get("avatar")
+        avatar=data.get("avatar"),
+        color=color
     )
     db.session.add(new_acc)
     db.session.commit()
@@ -36,20 +49,20 @@ def add_schedule():
     db.session.commit()
     return jsonify({"message": "schedule added"})
 
-@app.route("/get_account/<username>", methods=["GET"])
-def get_account(username):
-    account = Account.query.filter_by(username=username).first()
-    if not account:
-        return jsonify({"error": "account not found"}), 404
-
-    account_data = {
-        "username": account.username,
-        "email": account.email,
-        "status": account.status,
-        "avatar": account.avatar,
-        "schedule": account.schedule
-    }
-    return jsonify(account_data)
+@app.route("/get_all_accounts", methods=["GET"])
+def get_all_accounts():
+    accounts = Account.query.all()
+    account_list = []
+    for acc in accounts:
+        account_list.append({
+            "id": acc.id,
+            "username": acc.username,
+            "email": acc.email,
+            "status": acc.status,
+            "avatar": acc.avatar,
+            "color": acc.color or "#2196f3"  # もし空なら青
+        })
+    return jsonify(account_list)
 
 @app.route("/test")
 def test_page():

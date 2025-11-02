@@ -152,24 +152,11 @@ body {
     opacity: 0.9;
 }
 
-#createAccountBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 50px;        /* .avatar と同じ */
-  height: 50px;       /* .avatar と同じ */
-  border-radius: 50%; /* 丸型 */
-  margin: 10px 0;     /* .member と同じ上下間隔 */
-  background: #e0e0e0; /* アイコンがない分、軽いグレーで区切り感を出す（任意） */
-  border: none;
-  cursor: pointer;
-  font-size: 22px;
-  color: #666;
-  transition: background 0.2s;
-}
-
-#createAccountBtn:hover {
-  background: #d5d5d5;
+.create-btn {
+    height: 60px;
+    border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
+    transition: background 0.2s;
 }
 
 .control-btn {
