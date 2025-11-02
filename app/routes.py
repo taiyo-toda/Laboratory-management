@@ -1,6 +1,6 @@
 from flask import request, jsonify, render_template
 from app import app, db
-from app.models import Account
+from app.models import Account, Schedule
 
 @app.route("/")
 def index():
@@ -18,3 +18,39 @@ def create_account():
     db.session.add(new_acc)
     db.session.commit()
     return jsonify({"message": "account created"})
+
+@app.route("/add_schedule", methods=["POST"])
+def add_schedule():
+    data = request.get_json()
+    account = Account.query.filter_by(username=data["username"]).first()
+    if not account:
+        return jsonify({"error": "account not found"}), 404
+
+    new_schedule = Schedule(
+        account_id=account.id,
+        start_time=data["start_time"],
+        end_time=data["end_time"],
+        description=data.get("description", "")
+    )
+    db.session.add(new_schedule)
+    db.session.commit()
+    return jsonify({"message": "schedule added"})
+
+@app.route("/get_account/<username>", methods=["GET"])
+def get_account(username):
+    account = Account.query.filter_by(username=username).first()
+    if not account:
+        return jsonify({"error": "account not found"}), 404
+
+    account_data = {
+        "username": account.username,
+        "email": account.email,
+        "status": account.status,
+        "avatar": account.avatar,
+        "schedule": account.schedule
+    }
+    return jsonify(account_data)
+
+@app.route("/test")
+def test_page():
+    return render_template("test.html")

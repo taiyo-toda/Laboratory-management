@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>アカウント作成テスト</title>
+</head>
+<body>
+  <h1>アカウント作成</h1>
+  <input id="username" placeholder="ユーザー名">
+  <input id="email" placeholder="メールアドレス">
+  <button id="createBtn">作成</button>
+
+  <script>
+    document.getElementById("createBtn").addEventListener("click", async () => {
+      const username = document.getElementById("username").value;
+      const email = document.getElementById("email").value;
+
+      const response = await fetch("http://127.0.0.1:5000/create_account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email })
+      });
+
+      const data = await response.json();
+      alert(data.message);
+    });
+  </script>
+</body>
+</html>
