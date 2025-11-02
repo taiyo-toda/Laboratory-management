@@ -49,6 +49,33 @@ for (var i = 0; i < 15; i++) {
     hours.push(9 + i);
 }
 
+function sendStatusToServer(memberId, status, comment = "") { // ここでサーバーにステータスを送信する処理を実装
+    // 例: fetch('/update_status', { method: 'POST', body: JSON.stringify({ memberId, status, comment }) });
+
+    var member = members.find(m => m.id === memberId);
+    if (!member) return Promise.reject('メンバーが見つかりませんでした');
+
+    var payload = {
+        username: member.name,
+        status: status,
+        comment: comment
+    };
+
+    return fetch('/update_status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    }).then(function(response) {
+        if (!response.ok) {
+            throw new Error('サーバーエラー: ' + response.statusText);
+        }
+        return response.json();
+    });
+
+}
+
 function toggleStatus(id) {
     for (var i = 0; i < members.length; i++) {
         if (members[i].id === id) {
