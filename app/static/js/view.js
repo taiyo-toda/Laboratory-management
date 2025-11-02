@@ -1,19 +1,32 @@
 // Dateは後々、Python側から取得するようにする予定です
 
 export function renderMembers(members) {
-    var container = document.getElementById('members');
-    var html = '';
-    for (var i = 0; i < members.length; i++) {
-        var m = members[i];
-        html += '<div class="member" data-member-id="' + m.id + '" onclick="toggleStatus(' + m.id + ')">';
-        html += '<div class="avatar" style="background: ' + m.color + '">';
-        html += m.name[0];
-        html += '<div class="status-badge status-' + m.status + '"></div>';
-        html += '</div>';
-        html += '<div class="member-name">' + m.name + '</div>';
-        html += '</div>';
-    }
-    container.innerHTML = html;
+  const container = document.getElementById("members");
+  container.innerHTML = "";
+
+  members.forEach(member => {
+    const memberEl = document.createElement("div");
+    memberEl.className = "member";
+    memberEl.innerHTML = `
+      <div class="avatar" style="background:${member.color}">
+        ${member.name[0]}
+        <div class="status-badge ${getStatusClass(member.status)}"></div>
+      </div>
+      <div class="member-name">${member.name}</div>
+    `;
+    memberEl.onclick = () => toggleStatus(member.id);
+    container.appendChild(memberEl);
+  });
+}
+
+function getStatusClass(status) {
+  switch (status) {
+    case "inroom": return "status-in";
+    case "away": return "status-away";
+    case "incollege": return "status-incollege";
+    case "outside": return "status-outside";
+    default: return "status-out";
+  }
 }
 
 export function renderCalendar(members, hours, events) {
