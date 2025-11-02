@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>研究室ステータス</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
     <div class="header">
@@ -32,6 +32,21 @@
             <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
         </svg>
     </button>
-    <script type="module" src="js/main.js"></script>
+
+    <script>
+      fetch("/api/time")
+        .then(res => res.json())
+        .then(data => {
+          console.log("現在時刻:", data.current_time);
+          console.log("ライン位置（分）:", data.line_position);
+
+          const calendar = document.getElementById("calendar");
+          const timeDisplay = document.createElement("p");
+          timeDisplay.textContent = `現在時刻：${data.current_time}`;
+          calendar.appendChild(timeDisplay);
+        });
+    </script>
+
+    <script type="module" src="/static/js/main.js"></script>
 </body>
 </html>
