@@ -37,6 +37,7 @@ async function loadMembers() {
 
     renderMembers(members);
     renderCalendar(members, hours, events);
+    attachMemberHoverListeners();  // ← 追加：メンバー読み込み後にリスナーを接続
   } catch (err) {
     console.error("メンバー読み込みエラー:", err);
   }
@@ -82,6 +83,7 @@ function toggleStatus(id) {
         }
     }
     renderMembers(members);
+    attachMemberHoverListeners();  // ← 追加：renderMembers()後にリスナーを再接続
 }
 
 function addEvent(memberId, hour) {
@@ -171,6 +173,44 @@ document.getElementById('airconBtnModal').addEventListener('click', function() {
     document.getElementById('airconBtn').className = 'control-btn aircon-btn ' + (airconOn ? 'on' : 'off') + ' hidden';
 });
 
+/* ============================================
+   メンバー・カレンダー列の同期（ホバーハイライト）
+   ============================================ */
+
+function attachMemberHoverListeners() {
+    document.querySelectorAll('.member').forEach(member => {
+        const memberId = member.dataset.memberId;
+        
+        member.addEventListener('mouseenter', () => {
+            const column = document.querySelector(`.member-column[data-member-id="${memberId}"]`);
+            if (column) column.classList.add('highlight');
+        });
+        
+        member.addEventListener('mouseleave', () => {
+            const column = document.querySelector(`.member-column[data-member-id="${memberId}"]`);
+            if (column) column.classList.remove('highlight');
+        });
+    });
+}
+
+// 既存のメンバーホバーイベント（後方互換性のため残す）
+// 以下のコードは attachMemberHoverListeners() に統合されます
+/*
+document.querySelectorAll('.member').forEach(member => {
+    const memberId = member.dataset.memberId;
+    
+    member.addEventListener('mouseenter', () => {
+        const column = document.querySelector(`.member-column[data-member-id="${memberId}"]`);
+        if (column) column.classList.add('highlight');
+    });
+    
+    member.addEventListener('mouseleave', () => {
+        const column = document.querySelector(`.member-column[data-member-id="${memberId}"]`);
+        if (column) column.classList.remove('highlight');
+    });
+});
+*/
+
 // windowオブジェクトは全ての要素の親要素です
 window.toggleStatus = toggleStatus;
 window.addEvent = addEvent;
@@ -209,6 +249,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 alert("✅ アカウントを作成しました: " + username);
                 members.push({ id: Date.now(), name: username, status: "in", color: color });
                 renderMembers(members);
+                attachMemberHoverListeners();  // ← 追加：新規メンバー追加時にリスナーを再接続
             } else {
                 alert("❌ エラー: " + (data.error || "不明なエラー"));
             }

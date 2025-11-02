@@ -5,7 +5,7 @@ export function renderMembers(members) {
     var html = '';
     for (var i = 0; i < members.length; i++) {
         var m = members[i];
-        html += '<div class="member" onclick="toggleStatus(' + m.id + ')">';
+        html += '<div class="member" data-member-id="' + m.id + '" onclick="toggleStatus(' + m.id + ')">';
         html += '<div class="avatar" style="background: ' + m.color + '">';
         html += m.name[0];
         html += '<div class="status-badge status-' + m.status + '"></div>';

@@ -27,16 +27,20 @@ body {
     background: white;
     border-bottom: 1px solid #e0e0e0;
     z-index: 100;
-    overflow-x: auto;
-    overflow-y: hidden;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch;
+    display: flex;
+    align-items: stretch;
+    height: 70px;
 }
 
 .members {
     display: inline-flex;
     padding: 12px 8px;
-    min-width: 100%;
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    align-items: center;
 }
 
 /* ============================================
@@ -99,8 +103,8 @@ body {
    ============================================ */
 
 .calendar-container {
-    margin-top: 86px;
-    height: calc(100vh - 86px);
+    margin-top: 70px;
+    height: calc(100vh - 70px);
     overflow-y: auto;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -142,6 +146,11 @@ body {
     flex-shrink: 0;
     border-right: 1px solid #e0e0e0;
     position: relative;
+}
+
+.member-column.highlight {
+    background: rgba(33, 150, 243, 0.1);  /* 薄い背景色 */
+    border-left: 3px solid #2196f3;      /* 左線でアクティブ表示 */
 }
 
 .member-slot {
@@ -194,10 +203,31 @@ body {
    ============================================ */
 
 .create-btn {
-    height: 60px;
-    border-bottom: 1px solid #e0e0e0;
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    background: #2196f3;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
     cursor: pointer;
-    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+    margin-right: 8px;
+}
+
+.create-btn:hover {
+    background: #1976d2;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.create-btn:active {
+    transform: scale(0.95);
 }
 
 /* ============================================
@@ -406,22 +436,31 @@ body {
         height: 100vh;
         position: fixed;
         border-right: 1px solid #e0e0e0;
-        overflow-y: auto;
-        overflow-x: hidden;
-        white-space: normal;
         background: white;
         z-index: 100;
+        display: flex;
+        flex-direction: column;
     }
 
     .members {
         display: flex;
         flex-direction: column;
         padding: 16px 8px;
-        min-width: auto;
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 
     .member {
         margin: 10px 0;
+    }
+
+    /* ユーザー作成ボタンをサイドバー下部に配置 */
+    .create-btn {
+        flex-shrink: 0;
+        margin: 8px;
+        width: 48px;
+        height: 48px;
     }
 
     /* カレンダーをサイドバーの右に配置 */
