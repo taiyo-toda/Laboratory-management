@@ -54,3 +54,23 @@ def get_account(username):
 @app.route("/test")
 def test_page():
     return render_template("test.html")
+
+@app.route("/update_status", methods = ["POST"])
+def update_status():
+    data = request.get_json() or {}
+    username = data.get("username")
+    status = data.get("status")
+    comment = data.get("comment", "")
+
+    # 入力チェック
+    if not username or not status:
+        return jsonify({"error": "usernameとstatusが必要です"}), 400
+
+    account = Account.query.filter_by(username=username).first()
+    if not account:
+        return jsonify({"error": "アカウントが見つかりません"}), 404
+    
+    account.status = status
+    db.session.commit()
+
+    return jsonify({"message": "statusを更新しました", "username": account.username, "status": account.status})
