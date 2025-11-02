@@ -8,6 +8,16 @@ function getRandomColor() {
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
+function getColorByStatus(status) {
+  switch (status) {
+    case "inroom": return "#4caf50";   // 緑：在室
+    case "away": return "#ff9800";     // オレンジ：離席
+    case "incollege": return "#ff3b3bff"; // 赤：学内
+    case "outside": return "#9e9e9e";  // グレー：不在
+    default: return "#2196f3";         // 青：未設定など
+  }
+}
+
 var hours = [];
 for (var i = 0; i < 15; i++) {
     hours.push(9 + i);
@@ -31,13 +41,11 @@ async function loadMembers() {
     members = data.map(acc => ({
       id: acc.id,
       name: acc.username,
-      status: acc.status || "in",
-      color: "#2196f3"
+      status: acc.status,
+      color: acc.color
     }));
 
     renderMembers(members);
-    renderCalendar(members, hours, events);
-    attachMemberHoverListeners();  // ← 追加：メンバー読み込み後にリスナーを接続
   } catch (err) {
     console.error("メンバー読み込みエラー:", err);
   }
@@ -73,44 +81,92 @@ var locked = false;
 var airconOn = false;
 var lightOn = true;
 
-function toggleStatus(id) {
-    for (var i = 0; i < members.length; i++) {
-        if (members[i].id === id) {
-            var statuses = ['in', 'away', 'out'];
-            var currentIndex = statuses.indexOf(members[i].status);
-            members[i].status = statuses[(currentIndex + 1) % 3];
-            break;
-        }
-    }
-    renderMembers(members);
-    attachMemberHoverListeners();  // ← 追加：renderMembers()後にリスナーを再接続
+async function toggleStatus(id) {
+  const member = members.find(m => m.id === id);
+  if (!member) return;
+
+  const statuses = ['inroom', 'away', 'incollege', 'outside'];
+  const currentIndex = statuses.indexOf(member.status);
+  member.status = statuses[(currentIndex + 1) % 4];
+
+  renderMembers(members);
+
+  // サーバー更新
+  try {
+    await fetch("/update_status", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: member.name, status: member.status })
+    });
+  } catch (err) {
+    console.error("ステータス更新失敗:", err);
+  }
 }
 
-function addEvent(memberId, hour) {
+async function addEvent(memberId, hour) {
     var text = prompt('予定内容を入力してください:');
-    if (text) {
-        events.push({
-            id: Date.now(),
-            memberId: memberId,
-            hour: hour,
-            duration: 1,
-            text: text
+    if (!text) return;
+
+    const member = members.find(m => m.id === memberId);
+    if (!member) return;
+
+    // 予定の時間帯を作成
+    const start = new Date();
+    start.setHours(hour, 0, 0);
+    const end = new Date();
+    end.setHours(hour + 1, 0, 0);
+
+    try {
+        const res = await fetch("/add_schedule", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                username: member.name,
+                start_time: start.toISOString(),
+                end_time: end.toISOString(),
+                description: text
+            })
         });
-        renderCalendar(members, hours, events);
+
+        const data = await res.json();
+        if (res.ok) {
+            console.log("✅ サーバに登録:", data);
+            events.push({
+                id: data.id,
+                memberId,
+                hour,
+                duration: 1,
+                text
+            });
+            renderCalendar(members, hours, events);
+        } else {
+            alert("❌ エラー: " + data.error);
+        }
+    } catch (err) {
+        alert("⚠ 通信エラー: " + err.message);
     }
 }
 
-function deleteEvent(e, id) {
+async function deleteEvent(e, id) {
     e.stopPropagation();
-    if (confirm('この予定を削除しますか？')) {
-        var newEvents = [];
-        for (var i = 0; i < events.length; i++) {
-            if (events[i].id !== id) {
-                newEvents.push(events[i]);
-            }
-        }
-        events = newEvents;
+
+    if (!confirm('この予定を削除しますか？')) return;
+
+    try {
+        events = events.filter(ev => ev.id !== id);
         renderCalendar(members, hours, events);
+
+        const res = await fetch(`/delete_schedule/${id}`, { method: "DELETE" });
+        const data = await res.json();
+
+        if (res.ok) {
+            console.log("✅ サーバーから削除:", data);
+        } else {
+            console.error("❌ サーバー削除エラー:", data.error);
+        }
+    } catch (err) {
+        console.error("⚠ 通信エラー:", err);
+        alert("通信エラーが発生しました");
     }
 }
 
