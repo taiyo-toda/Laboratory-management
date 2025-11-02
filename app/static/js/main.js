@@ -8,6 +8,11 @@ function getRandomColor() {
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
+var hours = [];
+for (var i = 0; i < 15; i++) {
+    hours.push(9 + i);
+}
+
 let members = [];
 
 var events = [
@@ -37,44 +42,35 @@ async function loadMembers() {
   }
 }
 
+async function loadSchedules() {
+  try {
+    const res = await fetch("/get_all_schedules");
+    const data = await res.json();
+    console.log("DBからスケジュール取得:", data);
+
+    events = data.map(e => ({
+      id: e.id,
+      memberId: e.account_id,
+      hour: new Date(e.start_time).getHours(),
+      duration: (new Date(e.end_time) - new Date(e.start_time)) / 3600000,
+      text: e.description
+    }));
+
+    renderCalendar(members, hours, events);
+  } catch (err) {
+    console.error("スケジュール読み込みエラー:", err);
+  }
+}
+
 // ページ読み込み時に実行
-loadMembers();
+(async () => {
+  await loadMembers();
+  await loadSchedules();
+})();
 
 var locked = false;
 var airconOn = false;
 var lightOn = true;
-
-var hours = [];
-for (var i = 0; i < 15; i++) {
-    hours.push(9 + i);
-}
-
-function sendStatusToServer(memberId, status, comment = "") { // ここでサーバーにステータスを送信する処理を実装
-    // 例: fetch('/update_status', { method: 'POST', body: JSON.stringify({ memberId, status, comment }) });
-
-    var member = members.find(m => m.id === memberId);
-    if (!member) return Promise.reject('メンバーが見つかりませんでした');
-
-    var payload = {
-        username: member.name,
-        status: status,
-        comment: comment
-    };
-
-    return fetch('/update_status', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-    }).then(function(response) {
-        if (!response.ok) {
-            throw new Error('サーバーエラー: ' + response.statusText);
-        }
-        return response.json();
-    });
-
-}
 
 function toggleStatus(id) {
     for (var i = 0; i < members.length; i++) {
@@ -98,7 +94,7 @@ function addEvent(memberId, hour) {
             duration: 1,
             text: text
         });
-        renderCalendar();
+        renderCalendar(members, hours, events);
     }
 }
 
@@ -144,34 +140,36 @@ if (currentHour >= 9) {
     document.getElementById('calendarContainer').scrollTop = Math.max(0, scrollPosition);
 }
 
-document.getElementById('createAccountBtn').addEventListener('click', async () => {
-    const username = prompt("新しいユーザー名を入力してください:");
-    const email = prompt("メールアドレスを入力してください:");
+window.addEventListener("DOMContentLoaded", () => {
+    document.getElementById('createAccountBtn').addEventListener('click', async () => {
+        const username = prompt("新しいユーザー名を入力してください:");
+        const email = prompt("メールアドレスを入力してください:");
 
-    if (!username || !email) {
-        alert("ユーザー名とメールアドレスは必須です。");
-        return;
-    }
-
-    const color = getRandomColor();
-
-    try {
-        const res = await fetch("/create_account", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, email })
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-            alert("✅ アカウントを作成しました: " + username);
-            members.push({ id: Date.now(), name: username, status: "in", color: color });
-            renderMembers(members);
-        } else {
-            alert("❌ エラー: " + (data.error || "不明なエラー"));
+        if (!username || !email) {
+            alert("ユーザー名とメールアドレスは必須です。");
+            return;
         }
-    } catch (err) {
-        alert("⚠ 通信エラー: " + err.message);
-    }
+
+        const color = getRandomColor();
+
+        try {
+            const res = await fetch("/create_account", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, email })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                alert("✅ アカウントを作成しました: " + username);
+                members.push({ id: Date.now(), name: username, status: "in", color: color });
+                renderMembers(members);
+            } else {
+                alert("❌ エラー: " + (data.error || "不明なエラー"));
+            }
+        } catch (err) {
+            alert("⚠ 通信エラー: " + err.message);
+        }
+    });
 });
