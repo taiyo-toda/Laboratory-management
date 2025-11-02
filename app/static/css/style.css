@@ -236,3 +236,48 @@ body {
     border-radius: 50%;
     background: #f44336;
 }
+
+@media (min-width: 1024px) {
+    .header {
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 140px;
+        height: 100vh;
+        position: fixed;
+        border-right: 1px solid #e0e0e0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        white-space: normal;
+        background: white;
+        z-index: 100;
+    }
+    .members {
+        display: flex;
+        flex-direction: column;
+        padding: 16px 8px;
+        min-width: auto;
+    }
+
+    .member {
+        margin: 10px 0;
+    }
+
+    .calendar-container {
+        margin-top: 0;
+        margin-left: 140px; /* .header の width と同じにする */
+        height: 100vh;
+        overflow-x: auto;
+        overflow-y: auto;
+    }
+
+    /* カレンダー内部は横に長くして横スクロールさせる（必要に応じ調整） */
+    .calendar {
+        min-width: 1000px; /* 必要に応じ拡張 */
+    }
+
+    /* 固定ボタンの位置を微調整（任意） */
+    .lock-btn { right: 20px; bottom: 20px; }
+    .aircon-btn { left: 20px; bottom: 20px; }
+    .light-btn { left: 20px; bottom: 86px; }
+}
