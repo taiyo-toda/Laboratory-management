@@ -127,6 +127,50 @@ document.getElementById('lightBtn').addEventListener('click', function() {
     this.className = 'control-btn light-btn ' + (lightOn ? 'on' : 'off');
 });
 
+/* ============================================
+   モーダル制御
+   ============================================ */
+
+const modal = document.getElementById('iotModal');
+const modalTriggerBtn = document.getElementById('modalTriggerBtn');
+const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+// モーダルを開く
+modalTriggerBtn.addEventListener('click', () => {
+    modal.classList.add('active');
+});
+
+// モーダルを閉じる
+modalCloseBtn.addEventListener('click', () => {
+    modal.classList.remove('active');
+});
+
+// モーダルの背景をクリックして閉じる
+modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        modal.classList.remove('active');
+    }
+});
+
+// モーダル内のボタンのイベントリスナー
+document.getElementById('lockBtnModal').addEventListener('click', function() {
+    locked = !locked;
+    this.className = 'control-btn lock-btn ' + (locked ? 'locked' : 'unlocked') + ' modal-btn';
+    document.getElementById('lockBtn').className = 'control-btn lock-btn ' + (locked ? 'locked' : 'unlocked') + ' hidden';
+});
+
+document.getElementById('lightBtnModal').addEventListener('click', function() {
+    lightOn = !lightOn;
+    this.className = 'control-btn light-btn ' + (lightOn ? 'on' : 'off') + ' modal-btn';
+    document.getElementById('lightBtn').className = 'control-btn light-btn ' + (lightOn ? 'on' : 'off') + ' hidden';
+});
+
+document.getElementById('airconBtnModal').addEventListener('click', function() {
+    airconOn = !airconOn;
+    this.className = 'control-btn aircon-btn ' + (airconOn ? 'on' : 'off') + ' modal-btn';
+    document.getElementById('airconBtn').className = 'control-btn aircon-btn ' + (airconOn ? 'on' : 'off') + ' hidden';
+});
+
 // windowオブジェクトは全ての要素の親要素です
 window.toggleStatus = toggleStatus;
 window.addEvent = addEvent;

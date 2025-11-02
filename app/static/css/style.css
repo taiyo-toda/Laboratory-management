@@ -1,3 +1,7 @@
+/* ============================================
+   基本スタイル
+   ============================================ */
+
 * {
     margin: 0;
     padding: 0;
@@ -10,6 +14,10 @@ body {
     overflow: hidden;
     height: 100vh;
 }
+
+/* ============================================
+   ヘッダー（メンバー一覧）
+   ============================================ */
 
 .header {
     position: fixed;
@@ -30,6 +38,10 @@ body {
     padding: 12px 8px;
     min-width: 100%;
 }
+
+/* ============================================
+   メンバーコンポーネント
+   ============================================ */
 
 .member {
     display: inline-flex;
@@ -63,15 +75,28 @@ body {
     border: 2px solid white;
 }
 
-.status-in { background: #4caf50; }
-.status-away { background: #ff9800; }
-.status-out { background: #9e9e9e; }
+/* ステータス色 */
+.status-in {
+    background: #4caf50;
+}
+
+.status-away {
+    background: #ff9800;
+}
+
+.status-out {
+    background: #9e9e9e;
+}
 
 .member-name {
     margin-top: 4px;
     font-size: 11px;
     color: #666;
 }
+
+/* ============================================
+   カレンダーコンテナ
+   ============================================ */
 
 .calendar-container {
     margin-top: 86px;
@@ -85,6 +110,10 @@ body {
     display: flex;
     min-width: max-content;
 }
+
+/* ============================================
+   カレンダー内：時間列
+   ============================================ */
 
 .time-column {
     width: 50px;
@@ -104,6 +133,10 @@ body {
     color: #999;
 }
 
+/* ============================================
+   カレンダー内：メンバー列
+   ============================================ */
+
 .member-column {
     width: 80px;
     flex-shrink: 0;
@@ -121,6 +154,10 @@ body {
 .member-slot:hover {
     background: #f9f9f9;
 }
+
+/* ============================================
+   イベント・予定表示
+   ============================================ */
 
 .event {
     position: absolute;
@@ -152,12 +189,20 @@ body {
     opacity: 0.9;
 }
 
+/* ============================================
+   ヘッダーボタン（新規メンバー追加）
+   ============================================ */
+
 .create-btn {
     height: 60px;
     border-bottom: 1px solid #e0e0e0;
     cursor: pointer;
     transition: background 0.2s;
 }
+
+/* ============================================
+   制御ボタン（ロック・エアコン・照明）
+   ============================================ */
 
 .control-btn {
     position: fixed;
@@ -174,10 +219,15 @@ body {
     z-index: 200;
 }
 
+.control-btn_icon {
+    font-size: 28px;
+}
+
 .control-btn:active {
     transform: scale(0.95);
 }
 
+/* ロックボタン */
 .lock-btn {
     bottom: 20px;
     right: 20px;
@@ -191,6 +241,7 @@ body {
     background: #4caf50;
 }
 
+/* エアコンボタン */
 .aircon-btn {
     bottom: 20px;
     left: 20px;
@@ -204,6 +255,7 @@ body {
     background: #bdbdbd;
 }
 
+/* 照明ボタン */
 .light-btn {
     bottom: 86px;
     left: 20px;
@@ -217,11 +269,107 @@ body {
     background: #bdbdbd;
 }
 
+/* モーダルトリガーボタン */
+.modal-trigger {
+    bottom: 20px;
+    right: 20px;
+    background: #9c27b0;
+}
+
+/* hidden クラス */
+.hidden {
+    display: none !important;
+}
+
+/* ============================================
+   モーダル
+   ============================================ */
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 300px;
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+.modal-body {
+    padding: 16px;
+    display: flex;
+    justify-content: space-around;
+    gap: 8px;
+}
+
+.modal-btn {
+    position: static !important;
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+}
+
+/* ============================================
+   アイコン
+   ============================================ */
+
 .icon {
     width: 28px;
     height: 28px;
     fill: white;
 }
+
+/* ============================================
+   現在時刻マーカー
+   ============================================ */
 
 .current-time-marker {
     position: absolute;
@@ -244,7 +392,12 @@ body {
     background: #f44336;
 }
 
+/* ============================================
+   レスポンシブデザイン（1024px以上：デスクトップ）
+   ============================================ */
+
 @media (min-width: 1024px) {
+    /* ヘッダーをサイドバーに変更 */
     .header {
         top: 0;
         left: 0;
@@ -259,6 +412,7 @@ body {
         background: white;
         z-index: 100;
     }
+
     .members {
         display: flex;
         flex-direction: column;
@@ -270,21 +424,32 @@ body {
         margin: 10px 0;
     }
 
+    /* カレンダーをサイドバーの右に配置 */
     .calendar-container {
         margin-top: 0;
-        margin-left: 140px; /* .header の width と同じにする */
+        margin-left: 140px;
         height: 100vh;
         overflow-x: auto;
         overflow-y: auto;
     }
 
-    /* カレンダー内部は横に長くして横スクロールさせる（必要に応じ調整） */
     .calendar {
-        min-width: 1000px; /* 必要に応じ拡張 */
+        min-width: 1000px;
     }
 
-    /* 固定ボタンの位置を微調整（任意） */
-    .lock-btn { right: 20px; bottom: 20px; }
-    .aircon-btn { left: 20px; bottom: 20px; }
-    .light-btn { left: 20px; bottom: 86px; }
+    /* 制御ボタンの位置を微調整 */
+    .lock-btn {
+        right: 20px;
+        bottom: 20px;
+    }
+
+    .aircon-btn {
+        left: 20px;
+        bottom: 20px;
+    }
+
+    .light-btn {
+        left: 20px;
+        bottom: 86px;
+    }
 }
