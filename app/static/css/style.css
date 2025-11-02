@@ -96,6 +96,10 @@ body {
     margin-top: 4px;
     font-size: 11px;
     color: #666;
+    max-width: 70px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* ============================================
@@ -208,26 +212,36 @@ body {
     height: 56px;
     border-radius: 50%;
     border: none;
-    background: #2196f3;
+    background: #4caf50;
     color: white;
     font-size: 24px;
     font-weight: bold;
     cursor: pointer;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: all 0.3s;
-    margin-right: 8px;
+    position: fixed;
+    z-index: 200;
 }
 
 .create-btn:hover {
-    background: #1976d2;
+    background: #45a049;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .create-btn:active {
     transform: scale(0.95);
+}
+
+/* デスクトップ版：IoTボタンの上隣に表示 */
+@media (min-width: 1024px) {
+    .create-btn {
+        display: flex;
+        bottom: 86px;
+        right: 20px;
+    }
 }
 
 /* ============================================
@@ -250,7 +264,7 @@ body {
 }
 
 .control-btn_icon {
-    font-size: 28px;
+    font-size: 3rem;
 }
 
 .control-btn:active {
@@ -304,11 +318,30 @@ body {
     bottom: 20px;
     right: 20px;
     background: #9c27b0;
+    width: 64px;
+    height: 64px;
+}
+
+.modal-icon {
+    margin : 0 auto;
+    display: flex;
+    font-size: 32px;
 }
 
 /* hidden クラス */
 .hidden {
     display: none !important;
+}
+
+/* PCレスポンシブで非表示（1024px以上） */
+.hide-on-desktop {
+    display: flex !important;
+}
+
+@media (min-width: 1024px) {
+    .hide-on-desktop {
+        display: none !important;
+    }
 }
 
 /* ============================================
@@ -397,6 +430,19 @@ body {
     fill: white;
 }
 
+.add-member-icon {
+    width: 28px;
+    height: 28px;
+    fill: white;
+}
+
+/* デスクトップアカウント作成ボタンのアイコンスタイル */
+.create-btn .icon {
+    width: 32px;
+    height: 32px;
+    fill: white;
+}
+
 /* ============================================
    現在時刻マーカー
    ============================================ */
@@ -476,7 +522,7 @@ body {
         min-width: 1000px;
     }
 
-    /* 制御ボタンの位置を微調整 */
+    /* 制御ボタンの位置を微調整
     .lock-btn {
         right: 20px;
         bottom: 20px;
@@ -490,5 +536,5 @@ body {
     .light-btn {
         left: 20px;
         bottom: 86px;
-    }
+    } */
 }

@@ -10,7 +10,7 @@ export function renderMembers(members) {
         html += m.name[0];
         html += '<div class="status-badge status-' + m.status + '"></div>';
         html += '</div>';
-        html += '<div class="member-name">' + m.name + '</div>';
+        html += '<div class="member-name" title="' + m.name + '">' + truncateName(m.name) + '</div>';
         html += '</div>';
     }
     container.innerHTML = html;
@@ -75,4 +75,8 @@ function updateCurrentTimeMarker() {
             columns[i].appendChild(marker);
         }
     }
+}
+
+function truncateName(name, maxLength = 20) { // 長い名前を省略する関数
+    return name.length > maxLength ? name.substring(0, maxLength - 1) + '…' : name;
 }

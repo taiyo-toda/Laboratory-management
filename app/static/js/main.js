@@ -224,37 +224,48 @@ if (currentHour >= 9) {
     document.getElementById('calendarContainer').scrollTop = Math.max(0, scrollPosition);
 }
 
+/* ============================================
+   ユーザー作成処理
+   ============================================ */
+
+async function createAccount() {
+    const username = prompt("新しいユーザー名を入力してください:");
+    const email = prompt("メールアドレスを入力してください:");
+
+    if (!username || !email) {
+        alert("ユーザー名とメールアドレスは必須です。");
+        return;
+    }
+
+    const color = getRandomColor();
+
+    try {
+        const res = await fetch("/create_account", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, email })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            alert("✅ アカウントを作成しました: " + username);
+            members.push({ id: Date.now(), name: username, status: "in", color: color });
+            renderMembers(members);
+            attachMemberHoverListeners();
+        } else {
+            alert("❌ エラー: " + (data.error || "不明なエラー"));
+        }
+    } catch (err) {
+        alert("⚠ 通信エラー: " + err.message);
+    }
+}
+
 window.addEventListener("DOMContentLoaded", () => {
-    document.getElementById('createAccountBtn').addEventListener('click', async () => {
-        const username = prompt("新しいユーザー名を入力してください:");
-        const email = prompt("メールアドレスを入力してください:");
-
-        if (!username || !email) {
-            alert("ユーザー名とメールアドレスは必須です。");
-            return;
-        }
-
-        const color = getRandomColor();
-
-        try {
-            const res = await fetch("/create_account", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, email })
-            });
-
-            const data = await res.json();
-
-            if (res.ok) {
-                alert("✅ アカウントを作成しました: " + username);
-                members.push({ id: Date.now(), name: username, status: "in", color: color });
-                renderMembers(members);
-                attachMemberHoverListeners();  // ← 追加：新規メンバー追加時にリスナーを再接続
-            } else {
-                alert("❌ エラー: " + (data.error || "不明なエラー"));
-            }
-        } catch (err) {
-            alert("⚠ 通信エラー: " + err.message);
-        }
+    /* デスクトップ版・モーダル内のユーザー作成ボタン */
+    document.getElementById('createAccountBtn').addEventListener('click', createAccount);
+    document.getElementById('createAccountBtnModal').addEventListener('click', async () => {
+        await createAccount();
+        modal.classList.remove('active');  // モーダルを閉じる
     });
 });
