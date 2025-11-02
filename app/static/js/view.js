@@ -51,7 +51,7 @@ export function renderCalendar(members, hours, events) {
         
         for (var k = 0; k < events.length; k++) {
             var e = events[k];
-            if (e.memberId === m.id) {
+            if (Number(e.memberId) === Number(m.id)) {
                 var top = (e.hour - 9) * 60;
                 var height = e.duration * 60;
                 column += '<div class="event" style="background: ' + m.color + '; top: ' + top + 'px; height: ' + height + 'px;" ';

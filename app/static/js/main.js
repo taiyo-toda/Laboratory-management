@@ -46,7 +46,6 @@ async function loadMembers() {
     }));
 
     renderMembers(members);
-    renderCalendar(members, hours, events);
   } catch (err) {
     console.error("メンバー読み込みエラー:", err);
   }
@@ -104,31 +103,70 @@ async function toggleStatus(id) {
   }
 }
 
-function addEvent(memberId, hour) {
+async function addEvent(memberId, hour) {
     var text = prompt('予定内容を入力してください:');
-    if (text) {
-        events.push({
-            id: Date.now(),
-            memberId: memberId,
-            hour: hour,
-            duration: 1,
-            text: text
+    if (!text) return;
+
+    const member = members.find(m => m.id === memberId);
+    if (!member) return;
+
+    // 予定の時間帯を作成
+    const start = new Date();
+    start.setHours(hour, 0, 0);
+    const end = new Date();
+    end.setHours(hour + 1, 0, 0);
+
+    try {
+        const res = await fetch("/add_schedule", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                username: member.name,
+                start_time: start.toISOString(),
+                end_time: end.toISOString(),
+                description: text
+            })
         });
-        renderCalendar(members, hours, events);
+
+        const data = await res.json();
+        if (res.ok) {
+            console.log("✅ サーバに登録:", data);
+            events.push({
+                id: data.id,
+                memberId,
+                hour,
+                duration: 1,
+                text
+            });
+            renderCalendar(members, hours, events);
+        } else {
+            alert("❌ エラー: " + data.error);
+        }
+    } catch (err) {
+        alert("⚠ 通信エラー: " + err.message);
     }
 }
 
-function deleteEvent(e, id) {
+async function deleteEvent(e, id) {
     e.stopPropagation();
-    if (confirm('この予定を削除しますか？')) {
-        var newEvents = [];
-        for (var i = 0; i < events.length; i++) {
-            if (events[i].id !== id) {
-                newEvents.push(events[i]);
-            }
-        }
-        events = newEvents;
+
+    if (!confirm('この予定を削除しますか？')) return;
+
+    try {
+        events = events.filter(ev => ev.id !== id);
         renderCalendar(members, hours, events);
+
+        const res = await fetch(`/delete_schedule/${id}`, { method: "DELETE" });
+        const data = await res.json();
+
+        if (res.ok) {
+            console.log("✅ サーバーから削除:", data);
+        } else {
+            console.error("❌ サーバー削除エラー:", data.error);
+        }
+    } catch (err) {
+        console.error("⚠ 通信エラー:", err);
+        alert("通信エラーが発生しました");
     }
 }
 
