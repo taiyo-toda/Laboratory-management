@@ -1,12 +1,14 @@
 import { renderMembers, renderCalendar } from './view.js';
 
-var members = [
-            { id: 1, name: '田中', status: 'in', color: '#2196f3' },
-            { id: 2, name: '佐藤', status: 'away', color: '#4caf50' },
-            { id: 3, name: '鈴木', status: 'out', color: '#9c27b0' },
-            { id: 4, name: '山田', status: 'in', color: '#ff9800' },
-            { id: 5, name: '中村', status: 'out', color: '#e91e63' }
-        ];
+function getRandomColor() {
+  const colors = [
+    "#2196f3", "#4caf50", "#ff9800", "#9c27b0", "#e91e63",
+    "#00bcd4", "#8bc34a", "#ffc107", "#3f51b5", "#795548"
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+let members = [];
 
 var events = [
     { id: 1, memberId: 1, hour: 10, duration: 2, text: 'ゼミ発表準備' },
@@ -14,6 +16,29 @@ var events = [
     { id: 3, memberId: 4, hour: 16, duration: 1, text: 'ミーティング' },
     { id: 4, memberId: 3, hour: 13, duration: 3, text: '論文執筆' }
 ];
+
+async function loadMembers() {
+  try {
+    const res = await fetch("/get_all_accounts");
+    const data = await res.json();
+    console.log("DBから取得:", data);
+
+    members = data.map(acc => ({
+      id: acc.id,
+      name: acc.username,
+      status: acc.status || "in",
+      color: "#2196f3"
+    }));
+
+    renderMembers(members);
+    renderCalendar(members, hours, events);
+  } catch (err) {
+    console.error("メンバー読み込みエラー:", err);
+  }
+}
+
+// ページ読み込み時に実行
+loadMembers();
 
 var locked = false;
 var airconOn = false;
@@ -111,10 +136,6 @@ window.toggleStatus = toggleStatus;
 window.addEvent = addEvent;
 window.deleteEvent = deleteEvent;
 
-renderMembers(members);
-renderCalendar(members, hours, events);
-
-
 // Dateは後々、Python側から取得するようにする予定
 var now = new Date();
 var currentHour = now.getHours();
@@ -122,3 +143,35 @@ if (currentHour >= 9) {
     var scrollPosition = ((currentHour - 9) * 60) - 100;
     document.getElementById('calendarContainer').scrollTop = Math.max(0, scrollPosition);
 }
+
+document.getElementById('createAccountBtn').addEventListener('click', async () => {
+    const username = prompt("新しいユーザー名を入力してください:");
+    const email = prompt("メールアドレスを入力してください:");
+
+    if (!username || !email) {
+        alert("ユーザー名とメールアドレスは必須です。");
+        return;
+    }
+
+    const color = getRandomColor();
+
+    try {
+        const res = await fetch("/create_account", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, email })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            alert("✅ アカウントを作成しました: " + username);
+            members.push({ id: Date.now(), name: username, status: "in", color: color });
+            renderMembers(members);
+        } else {
+            alert("❌ エラー: " + (data.error || "不明なエラー"));
+        }
+    } catch (err) {
+        alert("⚠ 通信エラー: " + err.message);
+    }
+});
