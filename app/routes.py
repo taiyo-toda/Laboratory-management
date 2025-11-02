@@ -64,6 +64,20 @@ def get_all_accounts():
         })
     return jsonify(account_list)
 
+@app.route("/get_all_schedules", methods=["GET"])
+def get_all_schedules():
+    schedules = Schedule.query.all()
+    schedule_list = []
+    for s in schedules:
+        schedule_list.append({
+            "id": s.id,
+            "account_id": s.account_id,
+            "start_time": s.start_time,
+            "end_time": s.end_time,
+            "description": s.description
+        })
+    return jsonify(schedule_list)
+
 @app.route("/test")
 def test_page():
     return render_template("test.html")
