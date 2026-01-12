@@ -173,3 +173,35 @@ CSS で スタイリング
 このアプリケーション全体は、**研究室の入退出状況や業務スケジュールをリアルタイムで共有するための可視化ツール**として設計されています。何か詳しく知りたい部分はお聞かせください！
 
 ---
+
+## Cloudflare Pages（静的モック公開）
+
+Cloudflare Pages は静的ホスティングのため、Flask（Python）を動かさずにモックデータで画面を表示します。
+
+### 公開するファイル（リポジトリ直下）
+
+- `index.html`
+- `test.html`
+- `static/`（CSS/JS）
+- `mock/`（モックJSON）
+
+### データ差し替え
+
+- `static/js/main.js` は `mock/accounts.json` と `mock/schedules.json` を読み込みます
+- 追加・削除・ステータス変更は通信せず、ページ内の状態だけ更新します（リロードで元に戻ります）
+
+### Cloudflare Pages 設定
+
+- Build command: なし
+- Build output directory: `.`
+
+### ローカル確認
+
+`file://` 直開きだと `fetch()` が失敗することがあるため、簡易サーバで確認してください。
+
+```powershell
+cd .
+python -m http.server 8000
+```
+
+ブラウザで `http://localhost:8000/` を開きます。

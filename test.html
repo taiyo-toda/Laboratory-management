@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>アカウント作成テスト</title>
+</head>
+<body>
+  <h1>アカウント作成</h1>
+  <input id="username" placeholder="ユーザー名">
+  <input id="email" placeholder="メールアドレス">
+  <button id="createBtn">作成</button>
+
+  <h2>（モック）作成済み</h2>
+  <ul id="createdList"></ul>
+
+  <script>
+    document.getElementById("createBtn").addEventListener("click", async () => {
+      const username = document.getElementById("username").value;
+      const email = document.getElementById("email").value;
+
+      if (!username || !email) {
+        alert("ユーザー名とメールアドレスは必須です。");
+        return;
+      }
+
+      // モックなので通信はしない（見た目だけ更新）
+      const li = document.createElement("li");
+      li.textContent = `${username} <${email}>`;
+      document.getElementById("createdList").appendChild(li);
+
+      alert("✅（モック）作成したことにします。\n※リロードすると消えます");
+    });
+  </script>
+</body>
+</html>
