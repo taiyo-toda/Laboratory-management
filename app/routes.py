@@ -1,6 +1,7 @@
 from flask import request, jsonify, render_template
 from app import app, db
 from app.models import Account, Schedule
+from datetime import datetime
 import random
 
 @app.route("/")
@@ -34,35 +35,109 @@ def create_account():
 
 @app.route("/add_schedule", methods=["POST"])
 def add_schedule():
-    data = request.get_json()
-    account = Account.query.filter_by(username=data["username"]).first()
-    if not account:
-        return jsonify({"error": "account not found"}), 404
+    try:
+        data = request.get_json()
+        account = Account.query.filter_by(username=data["username"]).first()
+        if not account:
+            return jsonify({"error": "account not found"}), 404
 
-    new_schedule = Schedule(
-        account_id=account.id,
-        start_time=data["start_time"],
-        end_time=data["end_time"],
-        description=data.get("description", "")
-    )
-    db.session.add(new_schedule)
-    db.session.commit()
-    return jsonify({"message": "schedule added"})
+        # JSのISO文字列をPythonのdatetimeに変換
+        start_time = datetime.fromisoformat(data["start_time"].replace("Z", "+00:00"))
+        end_time = datetime.fromisoformat(data["end_time"].replace("Z", "+00:00"))
+
+        new_schedule = Schedule(
+            account_id=account.id,
+            start_time=start_time,
+            end_time=end_time,
+            description=data.get("description", "")
+        )
+        db.session.add(new_schedule)
+        db.session.commit()
+
+        return jsonify({
+            "message": "schedule added",
+            "id": new_schedule.id,
+            "account_id": account.id,
+            "start_time": data["start_time"],
+            "end_time": data["end_time"],
+            "description": data.get("description", "")
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        print("❌ add_scheduleでエラー:", e)
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/delete_schedule/<int:schedule_id>", methods=["DELETE"])
+def delete_schedule(schedule_id):
+    s = Schedule.query.get(schedule_id)
+    if not s:
+        return jsonify({"error": f"Schedule {schedule_id} not found"}), 404
+
+    try:
+        db.session.delete(s)
+        db.session.commit()
+        return jsonify({"message": f"Schedule {schedule_id} deleted"}), 200
+    except Exception as e:
+        db.session.rollback()
+        print("❌ Error deleting schedule:", e)
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/get_all_accounts", methods=["GET"])
 def get_all_accounts():
-    accounts = Account.query.all()
-    account_list = []
-    for acc in accounts:
-        account_list.append({
-            "id": acc.id,
-            "username": acc.username,
-            "email": acc.email,
-            "status": acc.status,
-            "avatar": acc.avatar,
-            "color": acc.color or "#2196f3"  # もし空なら青
-        })
-    return jsonify(account_list)
+    try:
+        print("👥 get_all_accountsを実行中...")
+        accounts = Account.query.all()
+        print(f"✅ {len(accounts)}件のアカウントを取得")
+        
+        account_list = []
+        for acc in accounts:
+            account_list.append({
+                "id": acc.id,
+                "username": acc.username,
+                "email": acc.email,
+                "status": acc.status,
+                "avatar": acc.avatar,
+                "color": acc.color or "#2196f3"
+            })
+        
+        print(f"✅ JSON化: {account_list}")
+        return jsonify(account_list), 200
+    except Exception as e:
+        print(f"❌ get_all_accountsでエラー: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/get_all_schedules", methods=["GET"])
+def get_all_schedules():
+    try:
+        print("📋 get_all_schedulesを実行中...")
+        schedules = Schedule.query.all()
+        print(f"✅ {len(schedules)}件のスケジュールを取得")
+        
+        schedule_list = []
+        for s in schedules:
+            print(f"処理中: id={s.id}, start={s.start_time}, end={s.end_time}")
+            schedule_list.append({
+                "id": s.id,
+                "account_id": s.account_id,
+                "start_time": s.start_time.isoformat() if s.start_time else None,
+                "end_time": s.end_time.isoformat() if s.end_time else None,
+                "description": s.description
+            })
+        
+        print(f"✅ JSON化: {schedule_list}")
+        return jsonify(schedule_list), 200
+    except AttributeError as e:
+        print(f"❌ AttributeError: {e}")
+        print(f"❌ schedules型: {type(schedules)}")
+        return jsonify({"error": f"AttributeError: {str(e)}"}), 500
+    except Exception as e:
+        print(f"❌ get_all_schedulesでエラー: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/test")
 def test_page():
@@ -75,7 +150,6 @@ def update_status():
     status = data.get("status")
     comment = data.get("comment", "")
 
-    # 入力チェック
     if not username or not status:
         return jsonify({"error": "usernameとstatusが必要です"}), 400
 
@@ -87,3 +161,12 @@ def update_status():
     db.session.commit()
 
     return jsonify({"message": "statusを更新しました", "username": account.username, "status": account.status})
+
+@app.errorhandler(404)
+def not_found_error(e):
+    return jsonify({"error": "Not found"}), 404
+
+@app.errorhandler(500)
+def internal_error(e):
+    db.session.rollback()
+    return jsonify({"error": "Internal server error"}), 500

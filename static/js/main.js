@@ -1,5 +1,8 @@
 import { renderMembers, renderCalendar } from './view.js';
 
+const MOCK_ACCOUNTS_URL = new URL('../../mock/accounts.json', import.meta.url);
+const MOCK_SCHEDULES_URL = new URL('../../mock/schedules.json', import.meta.url);
+
 function getRandomColor() {
   const colors = [
     "#2196f3", "#4caf50", "#ff9800", "#9c27b0", "#e91e63",
@@ -34,11 +37,12 @@ var events = [
 
 async function loadMembers() {
   try {
-    const res = await fetch("/get_all_accounts");
-    const data = await res.json();
-    console.log("DBから取得:", data);
+        const res = await fetch(MOCK_ACCOUNTS_URL);
+        const data = await res.json();
+        const accounts = Array.isArray(data) ? data : (data.accounts ?? []);
+        console.log("モックから取得:", accounts);
 
-    members = data.map(acc => ({
+        members = accounts.map(acc => ({
       id: acc.id,
       name: acc.username,
       status: acc.status,
@@ -46,6 +50,7 @@ async function loadMembers() {
     }));
 
     renderMembers(members);
+        attachMemberHoverListeners();
   } catch (err) {
     console.error("メンバー読み込みエラー:", err);
   }
@@ -53,11 +58,12 @@ async function loadMembers() {
 
 async function loadSchedules() {
   try {
-    const res = await fetch("/get_all_schedules");
-    const data = await res.json();
-    console.log("DBからスケジュール取得:", data);
+        const res = await fetch(MOCK_SCHEDULES_URL);
+        const data = await res.json();
+        const schedules = Array.isArray(data) ? data : (data.schedules ?? []);
+        console.log("モックからスケジュール取得:", schedules);
 
-    events = data.map(e => ({
+        events = schedules.map(e => ({
       id: e.id,
       memberId: e.account_id,
       hour: new Date(e.start_time).getHours(),
@@ -91,16 +97,8 @@ async function toggleStatus(id) {
 
   renderMembers(members);
 
-  // サーバー更新
-  try {
-    await fetch("/update_status", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: member.name, status: member.status })
-    });
-  } catch (err) {
-    console.error("ステータス更新失敗:", err);
-  }
+    // モックなので通信はしない（見た目だけ更新）
+    renderCalendar(members, hours, events);
 }
 
 async function addEvent(memberId, hour) {
@@ -110,41 +108,16 @@ async function addEvent(memberId, hour) {
     const member = members.find(m => m.id === memberId);
     if (!member) return;
 
-    // 予定の時間帯を作成
-    const start = new Date();
-    start.setHours(hour, 0, 0);
-    const end = new Date();
-    end.setHours(hour + 1, 0, 0);
+    // モックなので通信せず、ローカル状態だけ更新
+    events.push({
+        id: Date.now(),
+        memberId,
+        hour,
+        duration: 1,
+        text
+    });
 
-    try {
-        const res = await fetch("/add_schedule", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                username: member.name,
-                start_time: start.toISOString(),
-                end_time: end.toISOString(),
-                description: text
-            })
-        });
-
-        const data = await res.json();
-        if (res.ok) {
-            console.log("✅ サーバに登録:", data);
-            events.push({
-                id: data.id,
-                memberId,
-                hour,
-                duration: 1,
-                text
-            });
-            renderCalendar(members, hours, events);
-        } else {
-            alert("❌ エラー: " + data.error);
-        }
-    } catch (err) {
-        alert("⚠ 通信エラー: " + err.message);
-    }
+    renderCalendar(members, hours, events);
 }
 
 async function deleteEvent(e, id) {
@@ -155,15 +128,6 @@ async function deleteEvent(e, id) {
     try {
         events = events.filter(ev => ev.id !== id);
         renderCalendar(members, hours, events);
-
-        const res = await fetch(`/delete_schedule/${id}`, { method: "DELETE" });
-        const data = await res.json();
-
-        if (res.ok) {
-            console.log("✅ サーバーから削除:", data);
-        } else {
-            console.error("❌ サーバー削除エラー:", data.error);
-        }
     } catch (err) {
         console.error("⚠ 通信エラー:", err);
         alert("通信エラーが発生しました");
@@ -295,26 +259,13 @@ async function createAccount() {
 
     const color = getRandomColor();
 
-    try {
-        const res = await fetch("/create_account", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, email })
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-            alert("✅ アカウントを作成しました: " + username);
-            members.push({ id: Date.now(), name: username, status: "in", color: color });
-            renderMembers(members);
-            attachMemberHoverListeners();
-        } else {
-            alert("❌ エラー: " + (data.error || "不明なエラー"));
-        }
-    } catch (err) {
-        alert("⚠ 通信エラー: " + err.message);
-    }
+    // モックなので通信せず、ローカル状態だけ更新
+    const nextId = members.length ? Math.max(...members.map(m => Number(m.id) || 0)) + 1 : 1;
+    members.push({ id: nextId, name: username, status: "inroom", color: color });
+    renderMembers(members);
+    renderCalendar(members, hours, events);
+    attachMemberHoverListeners();
+    alert("✅（モック）アカウントを作成しました: " + username + "\n※リロードすると元に戻ります");
 }
 
 window.addEventListener("DOMContentLoaded", () => {

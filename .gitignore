@@ -5,3 +5,7 @@ app/__pycache__/routes.cpython-313.pyc
 app/__pycache__/models.cpython-313.pyc
 app/__pycache__/__init__.cpython-314.pyc
 app/__pycache__/__init__.cpython-313.pyc
+app/__pycache__/__init__.cpython-312.pyc
+app/__pycache__/models.cpython-312.pyc
+app/__pycache__/routes.cpython-312.pyc
+instance/trackjob.db
