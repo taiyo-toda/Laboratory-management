@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "username": "山田",
+    "email": "yamada@example.com",
+    "status": "inroom",
+    "avatar": null,
+    "color": "#4caf50"
+  },
+  {
+    "id": 2,
+    "username": "佐藤",
+    "email": "sato@example.com",
+    "status": "away",
+    "avatar": null,
+    "color": "#ff9800"
+  },
+  {
+    "id": 3,
+    "username": "鈴木",
+    "email": "suzuki@example.com",
+    "status": "incollege",
+    "avatar": null,
+    "color": "#ff3b3bff"
+  },
+  {
+    "id": 4,
+    "username": "高橋",
+    "email": "takahashi@example.com",
+    "status": "outside",
+    "avatar": null,
+    "color": "#9e9e9e"
+  }
+]
